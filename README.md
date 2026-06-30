@@ -2,40 +2,56 @@
 
 A phone-friendly checklist app for Ronin: a Tuesday/Wednesday chores list
 and a San Diego trip packing list. Taps save automatically on his phone,
-and a progress ring fills as he checks things off (with confetti at 100%).
-
-It's a single static page — no build step, no backend.
-
-## Sending progress updates
-There's a green **Email Update** button at the bottom. When Ronin taps it,
-his phone's email app opens with a message pre-filled to
-**billyheinzman@gmail.com** showing what's done and what's left
-(chores + packing). He just taps Send. To change the recipient, edit the
-`EMAIL_TO` line near the top of the `<script>` in `index.html`.
+a progress ring fills as he checks things off (confetti at 100%), and
+**you get automatic emails** as he makes progress.
 
 ## Files
-- `index.html` — the whole app
-- `manifest.json` — lets him "Add to Home Screen" as an app
-- `icon-192.png` / `icon-512.png` — app icons
-- `vercel.json` — clean URLs config
+- `index.html` — the app
+- `api/notify.js` — serverless function that sends the emails
+- `manifest.json`, `icon-192.png`, `icon-512.png` — home-screen app setup
+- `vercel.json` — config
 
-## Deploy to Vercel (via GitHub)
-1. Create a new GitHub repo (e.g. `ronin-mission`) and upload these files
-   to the root of the repo.
-2. Go to vercel.com → **Add New → Project** → import that repo.
-3. Framework Preset: **Other**. Leave build/output settings empty.
-4. Click **Deploy**. You'll get a URL like `ronin-mission.vercel.app`.
+## Automatic progress emails
+You get an email at three moments (no action needed from Ronin):
+- 🚀 when he checks off his first task
+- 💪 when he hits 50%
+- 🏆 when everything is done (with the full list)
 
-## Put it on Ronin's phone
-1. Open the Vercel URL in **Safari (iPhone)** or **Chrome (Android)**.
-2. Tap the Share button → **Add to Home Screen**.
-3. It opens full-screen like a real app, and his checkmarks are saved
-   right on his phone.
+There's also a **Send Update Now** button he can tap anytime to email you
+the current status on demand.
 
-## Editing the lists later
-All the chores and packing items live in the `CHORES` and `PACKING`
-objects near the top of the `<script>` in `index.html`. Edit the text,
-commit to GitHub, and Vercel redeploys automatically.
+All emails go to the address you set in `NOTIFY_TO` (see setup below).
 
-> Note: progress is saved per-device in the browser. If he clears his
-> browser data or switches phones, the checkmarks reset.
+## One-time setup (about 10 minutes)
+
+### A) Deploy the app
+1. Upload all files (keep the `api` folder) to a GitHub repo.
+2. vercel.com → Add New → Project → import the repo → Framework: Other → Deploy.
+
+### B) Get a free email key from Resend
+1. Go to **resend.com** and sign up (free — 3,000 emails/month).
+2. In the dashboard, open **API Keys → Create API Key**. Copy it
+   (it starts with `re_`).
+
+### C) Add the key to Vercel
+1. In your Vercel project: **Settings → Environment Variables**.
+2. Add two variables:
+   - `RESEND_API_KEY` = the key you copied (the `re_...` value)
+   - `NOTIFY_TO` = billyheinzman@gmail.com
+3. Click **Save**, then go to **Deployments → … → Redeploy** so the keys
+   take effect.
+
+### D) Put it on Ronin's Samsung
+1. Open the Vercel URL in Chrome → ⋮ menu → **Add to Home screen**.
+
+## Test it
+- Open the app, check off one task → you should get the "🚀 started" email.
+- Or tap **Send Update Now** → the button shows "✅ Sent!" and you get an email.
+- If the button shows "⚠️ Failed", the Resend key isn't set yet (do step C).
+
+## Notes
+- Emails arrive **from** `onboarding@resend.dev` (Resend's free sender).
+  They may land in Spam the first time — mark "Not spam" once.
+- Checkmarks save on Ronin's phone only; the emails are how you see status.
+- To change which moments trigger emails, edit `checkMilestones()` in
+  `index.html`.

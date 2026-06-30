@@ -218,7 +218,7 @@
 <div class="footer">
   <div class="ftxt"><b id="footCount">0 / 0</b> done</div>
   <div class="footbtns">
-    <button class="emailbtn" id="emailBtn">📧 Email Update</button>
+    <button class="emailbtn" id="emailBtn">📧 Send Update Now</button>
     <button class="reset" id="resetBtn">Start Over</button>
   </div>
 </div>
@@ -268,7 +268,11 @@ const PACKING = {
 
 const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const STORE_KEY = "ronin-mission-v1";
-const EMAIL_TO = "billyheinzman@gmail.com";  // where progress updates are sent
+const NOTIFY_URL = "/api/notify";   // auto-email backend (Vercel function)
+const MILESTONE_KEY = "ronin-milestones-v1";  // remembers which emails were already sent
+let sentMilestones = {};
+try { sentMilestones = JSON.parse(localStorage.getItem(MILESTONE_KEY)) || {}; } catch(e){ sentMilestones = {}; }
+function saveMilestones(){ try{ localStorage.setItem(MILESTONE_KEY, JSON.stringify(sentMilestones)); }catch(e){} }
 
 // ---------- STATE ----------
 let state = {};
@@ -336,6 +340,34 @@ function updateProgress(celebrate){
   document.getElementById("ringSub").textContent = t[2];
   ring.setAttribute("stroke", pct===100 ? "#FFC83D" : "#2FB86B");
   if(celebrate && pct===100) fireConfetti();
+  if(celebrate) checkMilestones(done, total, pct);
+}
+
+// Send an automatic email at: first task, 50%, and 100%.
+function checkMilestones(done, total, pct){
+  if(done >= 1 && !sentMilestones.start){
+    sentMilestones.start = true; saveMilestones();
+    sendNotify("🚀 Ronin started his mission!", "Ronin just checked off his first task. He's on it!");
+  }
+  if(pct >= 50 && !sentMilestones.half){
+    sentMilestones.half = true; saveMilestones();
+    sendNotify("💪 Ronin is halfway done!", buildEmail().body);
+  }
+  if(pct >= 100 && !sentMilestones.done){
+    sentMilestones.done = true; saveMilestones();
+    sendNotify("🏆 Ronin finished everything!", buildEmail().body);
+  }
+}
+
+// Calls the Vercel backend. Fails silently if offline / not deployed.
+function sendNotify(subject, text){
+  try{
+    fetch(NOTIFY_URL, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({subject, text})
+    }).catch(()=>{});
+  }catch(e){}
 }
 
 function toggle(el){
@@ -369,6 +401,7 @@ document.querySelectorAll(".tab").forEach(tab=>{
 document.getElementById("resetBtn").addEventListener("click", ()=>{
   if(confirm("Uncheck everything and start over?")){
     state = {}; save();
+    sentMilestones = {}; saveMilestones();
     document.querySelectorAll(".item").forEach(el=>{ el.classList.remove("done"); el.setAttribute("aria-checked","false"); });
     updateProgress(false);
     window.scrollTo({top:0, behavior:"smooth"});
@@ -403,10 +436,18 @@ function buildEmail(){
 }
 document.getElementById("emailBtn").addEventListener("click", ()=>{
   const {subject, body} = buildEmail();
-  const url = "mailto:" + encodeURIComponent(EMAIL_TO) +
-    "?subject=" + encodeURIComponent(subject) +
-    "&body=" + encodeURIComponent(body);
-  window.location.href = url;
+  const btn = document.getElementById("emailBtn");
+  const original = btn.textContent;
+  btn.textContent = "Sending…"; btn.disabled = true;
+  fetch(NOTIFY_URL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({subject, text:body})
+  }).then(r=>{
+    if(r.ok){ btn.textContent = "✅ Sent!"; }
+    else { btn.textContent = "⚠️ Failed"; }
+  }).catch(()=>{ btn.textContent = "⚠️ No internet"; })
+   .finally(()=>{ setTimeout(()=>{ btn.textContent = original; btn.disabled = false; }, 2200); });
 });
 
 // ---------- CONFETTI ----------
