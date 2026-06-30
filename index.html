@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#10243E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ronin's Mission">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Ronin's Mission</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#10243E; --elec:#1E73E8; --lime:#2FB86B; --orange:#FF7A2F;
+    --purple:#7C4DFF; --yellow:#FFC83D; --teal:#13B8C4; --red:#FF4D5E;
+    --ink:#1B1B1F; --soft:#F4F7FB; --line:#DCE3EC; --muted:#5A6472;
+    --bg1:#0B1B30; --bg2:#163A66;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    font-family:'Nunito',system-ui,sans-serif;
+    color:var(--ink);
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    min-height:100vh;
+    padding:0 0 calc(90px + env(safe-area-inset-bottom)) 0;
+  }
+  .wrap{max-width:560px; margin:0 auto; padding:0 16px;}
+
+  /* ---------- Header / progress ---------- */
+  header{
+    text-align:center;
+    padding:calc(20px + env(safe-area-inset-top)) 16px 18px;
+  }
+  h1{
+    font-family:'Archivo',sans-serif; font-weight:900;
+    color:#fff; font-size:30px; letter-spacing:-.5px; margin:0;
+    text-shadow:0 2px 12px rgba(0,0,0,.3);
+  }
+  .subtitle{color:#9FC0E8; font-weight:700; font-size:14px; margin-top:4px;}
+
+  .ring-wrap{display:flex; align-items:center; justify-content:center; gap:18px; margin:18px 0 6px;}
+  .ring{position:relative; width:104px; height:104px; flex:none;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring .pct{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; color:#fff;
+    font-family:'Archivo',sans-serif; font-weight:800;
+  }
+  .ring .pct b{font-size:26px; line-height:1;}
+  .ring .pct span{font-size:10px; color:#9FC0E8; letter-spacing:1px; margin-top:2px;}
+  .ring-msg{color:#fff; text-align:left; max-width:200px;}
+  .ring-msg .big{font-family:'Archivo',sans-serif; font-weight:800; font-size:17px;}
+  .ring-msg .small{color:#9FC0E8; font-weight:700; font-size:13px; margin-top:3px;}
+
+  /* ---------- Tabs ---------- */
+  .tabs{display:flex; gap:8px; margin:16px 0 4px;}
+  .tab{
+    flex:1; border:none; cursor:pointer;
+    font-family:'Archivo',sans-serif; font-weight:800; font-size:14px;
+    padding:13px 8px; border-radius:14px;
+    background:rgba(255,255,255,.10); color:#cfe0f5;
+    transition:transform .12s, background .2s, color .2s;
+  }
+  .tab.active{background:#fff; color:var(--navy); box-shadow:0 6px 18px rgba(0,0,0,.25);}
+  .tab:active{transform:scale(.96);}
+
+  .page{display:none; animation:fade .25s ease;}
+  .page.show{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  /* ---------- Section banners ---------- */
+  .banner{
+    display:flex; align-items:center; gap:10px;
+    color:#fff; font-family:'Archivo',sans-serif; font-weight:800; font-size:16px;
+    padding:12px 16px; border-radius:12px; margin:18px 0 0;
+    box-shadow:0 6px 16px rgba(0,0,0,.22);
+  }
+  .banner .badge{
+    width:26px; height:26px; border-radius:50%; background:#fff; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:900;
+  }
+  .b-orange{background:var(--orange);} .b-orange .badge{color:var(--orange);}
+  .b-purple{background:var(--purple);} .b-purple .badge{color:var(--purple);}
+  .b-elec{background:var(--elec);} .b-elec .badge{color:var(--elec);}
+  .b-teal{background:var(--teal);} .b-teal .badge{color:var(--teal);}
+  .b-red{background:var(--red);} .b-red .badge{color:var(--red);}
+
+  /* ---------- Cards / groups ---------- */
+  .card{
+    background:#fff; border-radius:16px; margin-top:10px;
+    padding:6px 6px 8px; box-shadow:0 10px 26px rgba(0,0,0,.18);
+    border-top:4px solid var(--line);
+  }
+  .ct-orange{border-top-color:var(--orange);}
+  .ct-purple{border-top-color:var(--purple);}
+  .ct-elec{border-top-color:var(--elec);}
+  .ct-teal{border-top-color:var(--teal);}
+  .ct-red{border-top-color:var(--red);}
+  .group-title{
+    font-family:'Archivo',sans-serif; font-weight:800; color:var(--navy);
+    font-size:14px; padding:10px 12px 2px; text-transform:uppercase; letter-spacing:.4px;
+  }
+  .note{color:var(--muted); font-size:12px; font-weight:700; padding:0 12px 4px 14px;}
+
+  /* ---------- Checkable items ---------- */
+  .item{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 12px; margin:3px 4px; border-radius:12px;
+    cursor:pointer; user-select:none;
+    transition:background .15s, transform .08s;
+  }
+  .item:active{transform:scale(.985);}
+  .item:hover{background:var(--soft);}
+  .box{
+    width:26px; height:26px; flex:none; border-radius:8px;
+    border:2.5px solid var(--line); background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .2s, border-color .2s, transform .2s;
+  }
+  .box svg{width:16px; height:16px; opacity:0; transform:scale(.4); transition:opacity .2s, transform .2s;}
+  .label{font-weight:700; font-size:15.5px; line-height:1.3; color:var(--ink); transition:color .2s;}
+  .item.done .box{background:var(--lime); border-color:var(--lime);}
+  .item.done .box svg{opacity:1; transform:scale(1);}
+  .item.done .label{color:#9aa3af; text-decoration:line-through; text-decoration-color:#c7cdd6;}
+  .item.pop{animation:pop .3s ease;}
+  @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.04);}100%{transform:scale(1);}}
+
+  /* ---------- Win / tip banners ---------- */
+  .win{
+    margin-top:18px; border-radius:16px; padding:18px 16px; text-align:center;
+    color:#fff; font-family:'Archivo',sans-serif; font-weight:800; font-size:15px;
+    background:linear-gradient(135deg,#2FB86B,#1F9E58); line-height:1.4;
+    box-shadow:0 10px 26px rgba(47,184,107,.4);
+  }
+  .tip{
+    margin-top:16px; border-radius:14px; padding:14px 16px; text-align:center;
+    background:#FFF4DC; border:2px solid var(--yellow);
+    color:var(--navy); font-weight:700; font-size:13.5px; line-height:1.5;
+  }
+  .tip b{font-family:'Archivo',sans-serif;}
+
+  /* ---------- Footer bar ---------- */
+  .footer{
+    position:fixed; left:0; right:0; bottom:0;
+    background:rgba(11,27,48,.92); backdrop-filter:blur(10px);
+    border-top:1px solid rgba(255,255,255,.08);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    display:flex; align-items:center; gap:12px; justify-content:space-between;
+  }
+  .footer .ftxt{color:#9FC0E8; font-weight:800; font-size:13px;}
+  .footer .ftxt b{color:#fff; font-size:15px;}
+  .reset{
+    border:none; background:rgba(255,255,255,.12); color:#fff;
+    font-family:'Archivo',sans-serif; font-weight:800; font-size:13px;
+    padding:10px 16px; border-radius:11px; cursor:pointer;
+    transition:background .2s, transform .1s;
+  }
+  .reset:active{transform:scale(.95); background:rgba(255,255,255,.2);}
+  .footbtns{display:flex; gap:8px; align-items:center;}
+  .emailbtn{
+    border:none; background:var(--lime); color:#fff;
+    font-family:'Archivo',sans-serif; font-weight:800; font-size:13px;
+    padding:10px 16px; border-radius:11px; cursor:pointer; white-space:nowrap;
+    box-shadow:0 4px 12px rgba(47,184,107,.4);
+    transition:background .2s, transform .1s;
+  }
+  .emailbtn:active{transform:scale(.95); background:#27a35d;}
+
+  /* confetti */
+  #confetti{position:fixed; inset:0; pointer-events:none; z-index:50;}
+
+  :focus-visible{outline:3px solid var(--yellow); outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important;}}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<header>
+  <h1>RONIN'S MISSION</h1>
+  <div class="subtitle">Get ready for San Diego! 🎣</div>
+  <div class="ring-wrap">
+    <div class="ring">
+      <svg width="104" height="104" viewBox="0 0 104 104">
+        <circle cx="52" cy="52" r="46" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="10"/>
+        <circle id="ringFill" cx="52" cy="52" r="46" fill="none" stroke="#2FB86B" stroke-width="10"
+          stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289"/>
+      </svg>
+      <div class="pct"><b id="pctNum">0%</b><span>DONE</span></div>
+    </div>
+    <div class="ring-msg">
+      <div class="big" id="ringTitle">Let's go!</div>
+      <div class="small" id="ringSub">Tap a task to check it off.</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab active" data-page="chores">✅ Chores</button>
+    <button class="tab" data-page="packing">🎒 Packing</button>
+  </div>
+
+  <!-- ===== CHORES ===== -->
+  <section class="page show" id="chores"></section>
+
+  <!-- ===== PACKING ===== -->
+  <section class="page" id="packing"></section>
+</div>
+
+<div class="footer">
+  <div class="ftxt"><b id="footCount">0 / 0</b> done</div>
+  <div class="footbtns">
+    <button class="emailbtn" id="emailBtn">📧 Email Update</button>
+    <button class="reset" id="resetBtn">Start Over</button>
+  </div>
+</div>
+
+<script>
+// ---------- DATA ----------
+const CHORES = {
+  intro:"Beat the clock — finish everything by Wednesday night!",
+  sections:[
+    {title:"TUESDAY — Level 1", cls:"orange", groups:[
+      {name:"My Room", items:["Clean and organize my closet","Wash and dry my bedding","Make my bed neatly","Dust everything","Vacuum the floor","Pick up all the dog hair"]},
+      {name:"Front Door", items:["Clean the front door","Wash the front porch / entry floor"]},
+      {name:"House", items:["Take out all the trash","Take the old office TVs out to the trash"]}
+    ]},
+    {title:"WEDNESDAY — Level 2", cls:"purple", groups:[
+      {name:"Cleaning", items:["Swiffer all the floors","Mop floors and remove any spots or stains"]},
+      {name:"Organizing", items:["Bathroom + medicine cabinets","Laundry room"], note:"Throw away trash → put everything back → leave it neat"},
+      {name:"Trip Prep", items:["Make sure all clothes I'm taking are clean","Pack for the trip (Packing tab!)","Double-check everything is done before Thursday"]}
+    ]}
+  ],
+  win:"🏆 MISSION COMPLETE — an easy, stress-free Thursday! YOU'VE GOT THIS! 💪"
+};
+
+const PACKING = {
+  intro:"Grandma & Grandpa, fishing & boot camp! Pack about a week — laundry there.",
+  sections:[
+    {title:"Clothes", cls:"elec", groups:[
+      {name:"Underwear & Socks", items:["Underwear ×5","Socks ×5 pairs"]},
+      {name:"Shirts", items:["T-shirts ×5","1 nicer shirt (collared)","Long-sleeve shirt ×1"]},
+      {name:"Bottoms", items:["Shorts ×4","Pants / jeans ×2","Pajamas ×2 sets"]},
+      {name:"4th of July! 🎆", items:["Red, white & blue outfit","USA shirt or tank","Glow sticks / flag (optional)"]},
+      {name:"Boot Camp with Grandma & Grandpa", items:["Workout shirts ×3","Athletic shorts ×3","Running / training shoes"]}
+    ]},
+    {title:"Gear & Fun", cls:"teal", groups:[
+      {name:"Fishing 🎣", items:["Fishing rod & reel","Tackle box (hooks, lures, weights)","Extra fishing line","Hat for the sun","Sunglasses"]},
+      {name:"Ball with Grandpa ⚾", items:["Baseball glove","Bat","A couple of baseballs"]},
+      {name:"Shoes", items:["Everyday sneakers","Sandals / flip-flops"]},
+      {name:"Outerwear", items:["Hoodie / sweatshirt ×1","Light jacket ×1","Hat / cap"]}
+    ]},
+    {title:"Essentials", cls:"red", groups:[
+      {name:"Toiletries", items:["Toothbrush + toothpaste","Deodorant","Shampoo + body wash","Comb / brush","Sunscreen","Medications"]},
+      {name:"Don't Forget", items:["Phone + charger","Water bottle","Swim trunks","Laundry bag (dirty clothes)"]}
+    ]}
+  ],
+  tip:"<b>LAUNDRY HACK:</b> This is about a week's worth. Wash every 5–7 days at Grandma & Grandpa's and you're set for the whole trip — way less to carry!"
+};
+
+const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const STORE_KEY = "ronin-mission-v1";
+const EMAIL_TO = "billyheinzman@gmail.com";  // where progress updates are sent
+
+// ---------- STATE ----------
+let state = {};
+try { state = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch(e){ state = {}; }
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+
+// ---------- BUILD ----------
+let idCounter = 0;
+const ITEM_INDEX = {};  // id -> {label, page}
+function buildSection(sec, page){
+  let html = `<div class="banner b-${sec.cls}"><span class="badge">GO</span>${sec.title}</div>`;
+  html += `<div class="card ct-${sec.cls}">`;
+  sec.groups.forEach(g=>{
+    html += `<div class="group-title">${g.name}</div>`;
+    if(g.note) html += `<div class="note">${g.note}</div>`;
+    g.items.forEach(it=>{
+      const id = "i"+(idCounter++);
+      ITEM_INDEX[id] = {label: it, page: page};
+      const done = state[id] ? " done" : "";
+      html += `<div class="item${done}" data-id="${id}" role="checkbox" tabindex="0" aria-checked="${state[id]?'true':'false'}">
+        <span class="box">${CHECK_SVG}</span>
+        <span class="label">${it}</span></div>`;
+    });
+  });
+  html += `</div>`;
+  return html;
+}
+
+function buildPage(data, extraHTML, page){
+  let html = "";
+  data.sections.forEach(s=> html += buildSection(s, page));
+  html += extraHTML;
+  return html;
+}
+
+document.getElementById("chores").innerHTML =
+  buildPage(CHORES, `<div class="win">${CHORES.win}</div>`, "chores");
+document.getElementById("packing").innerHTML =
+  buildPage(PACKING, `<div class="tip">${PACKING.tip}</div>`, "packing");
+
+// ---------- INTERACTION ----------
+const ring = document.getElementById("ringFill");
+const RING_LEN = 289;
+function totalItems(){ return document.querySelectorAll(".item").length; }
+function doneItems(){ return document.querySelectorAll(".item.done").length; }
+
+const TITLES = [
+  [0,   "Let's go!",        "Tap a task to check it off."],
+  [1,   "Nice start!",      "Keep the streak going."],
+  [25,  "Rolling now!",     "You're a quarter of the way."],
+  [50,  "Halfway there!",   "Crushing it. 💪"],
+  [75,  "Almost done!",     "Just a few left."],
+  [100, "MISSION COMPLETE!","You did it! 🏆"]
+];
+
+function updateProgress(celebrate){
+  const total = totalItems(), done = doneItems();
+  const pct = total ? Math.round(done/total*100) : 0;
+  ring.style.strokeDashoffset = RING_LEN - (RING_LEN*pct/100);
+  document.getElementById("pctNum").textContent = pct + "%";
+  document.getElementById("footCount").textContent = done + " / " + total;
+  let t = TITLES[0];
+  for(const row of TITLES){ if(pct >= row[0]) t = row; }
+  document.getElementById("ringTitle").textContent = t[1];
+  document.getElementById("ringSub").textContent = t[2];
+  ring.setAttribute("stroke", pct===100 ? "#FFC83D" : "#2FB86B");
+  if(celebrate && pct===100) fireConfetti();
+}
+
+function toggle(el){
+  const id = el.dataset.id;
+  const nowDone = !el.classList.contains("done");
+  el.classList.toggle("done", nowDone);
+  el.setAttribute("aria-checked", nowDone ? "true":"false");
+  if(nowDone){ el.classList.add("pop"); setTimeout(()=>el.classList.remove("pop"),300); }
+  state[id] = nowDone; if(!nowDone) delete state[id];
+  save();
+  updateProgress(nowDone);
+}
+
+document.querySelectorAll(".item").forEach(el=>{
+  el.addEventListener("click", ()=>toggle(el));
+  el.addEventListener("keydown", e=>{ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); toggle(el); }});
+});
+
+// tabs
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("show"));
+    tab.classList.add("active");
+    document.getElementById(tab.dataset.page).classList.add("show");
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+});
+
+// reset
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Uncheck everything and start over?")){
+    state = {}; save();
+    document.querySelectorAll(".item").forEach(el=>{ el.classList.remove("done"); el.setAttribute("aria-checked","false"); });
+    updateProgress(false);
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+});
+
+// email progress update
+function pageStats(page){
+  const ids = Object.keys(ITEM_INDEX).filter(id=>ITEM_INDEX[id].page===page);
+  const done = ids.filter(id=>state[id]);
+  const left = ids.filter(id=>!state[id]).map(id=>ITEM_INDEX[id].label);
+  return {total:ids.length, done:done.length, left};
+}
+function buildEmail(){
+  const c = pageStats("chores"), p = pageStats("packing");
+  const ok = n => n.done===n.total ? " ✅ ALL DONE!" : "";
+  let body = "Hi! Here's where I'm at:\n\n";
+  body += `CHORES: ${c.done} of ${c.total} done${ok(c)}\n`;
+  body += `PACKING: ${p.done} of ${p.total} done${ok(p)}\n`;
+  if(c.left.length){
+    body += `\nChores still to do:\n` + c.left.map(x=>"- "+x).join("\n") + "\n";
+  }
+  if(p.left.length){
+    body += `\nStill to pack:\n` + p.left.map(x=>"- "+x).join("\n") + "\n";
+  }
+  if(!c.left.length && !p.left.length){
+    body += `\nEverything is finished! 🏆 Ready for San Diego! 🎣\n`;
+  }
+  body += `\n— Ronin`;
+  const subject = "Ronin's progress: " + (c.done+p.done) + " of " + (c.total+p.total) + " done";
+  return {subject, body};
+}
+document.getElementById("emailBtn").addEventListener("click", ()=>{
+  const {subject, body} = buildEmail();
+  const url = "mailto:" + encodeURIComponent(EMAIL_TO) +
+    "?subject=" + encodeURIComponent(subject) +
+    "&body=" + encodeURIComponent(body);
+  window.location.href = url;
+});
+
+// ---------- CONFETTI ----------
+const cv = document.getElementById("confetti"), cx = cv.getContext("2d");
+let parts = [], raf = null;
+function resize(){ cv.width = innerWidth; cv.height = innerHeight; }
+resize(); addEventListener("resize", resize);
+function fireConfetti(){
+  const colors = ["#FF7A2F","#7C4DFF","#1E73E8","#2FB86B","#FFC83D","#FF4D5E"];
+  parts = [];
+  for(let i=0;i<140;i++){
+    parts.push({x:innerWidth/2, y:innerHeight*0.3,
+      vx:(Math.random()-0.5)*14, vy:Math.random()*-12-4,
+      g:0.35+Math.random()*0.2, s:6+Math.random()*7,
+      c:colors[i%colors.length], r:Math.random()*6, vr:(Math.random()-0.5)*0.4, life:0});
+  }
+  if(!raf) loop();
+}
+function loop(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  let alive=false;
+  parts.forEach(p=>{
+    p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; p.life++;
+    if(p.y < cv.height+30){ alive=true;
+      cx.save(); cx.translate(p.x,p.y); cx.rotate(p.r);
+      cx.fillStyle=p.c; cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6); cx.restore();
+    }
+  });
+  if(alive){ raf=requestAnimationFrame(loop); } else { cx.clearRect(0,0,cv.width,cv.height); raf=null; }
+}
+
+// init
+updateProgress(false);
+</script>
+</body>
+</html>
